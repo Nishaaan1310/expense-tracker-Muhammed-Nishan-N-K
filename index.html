@@ -1,114 +1,197 @@
 <!DOCTYPE HTML>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Expense Tracker</title>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- FontAwesome Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Styling & Scripts -->
         <link rel="stylesheet" href="style.css">
         <script src="script.js" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <title> Expense Tracker </title>
     </head>
     <body>
-        <header class="summary">
-            <div class="summary">
-                <span>Current Balance</span>
-                <span id="current-balance">&#8377; 0.00 </span>
-            </div>
-            <div class="summary">
-                <span>Total Income</span>
-                <span id="total-income">&#8377; 0.00 </span>
-            </div>
-            <div class="summary">
-                <span>Total Expense</span>
-                <span id="total-expense">&#8377; 0.00 </span>
-            </div>
-        </header>
-        </div>
-            <form id="transaction-form">
+        <div class="app-container">
+            <!-- App Header Title -->
+            <header class="app-brand-header">
+                <div class="brand-info">
+                    <div class="brand-logo-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <h1>Expense Tracker</h1>
+                        <p class="brand-subtitle">Track income, manage expenses, and analyze budgets</p>
+                    </div>
+                </div>
+            </header>
 
-                <label for="amount">Amount</label>
-                <input id="amount" type="number" placeholder="Amount" min="0.1" step="0.01" required>
-                <small id = "amount-error" class="error-text"></small>
+            <!-- Summary Header Cards Grid -->
+            <header class="summary-cards-grid">
+                <div class="summary-card balance-card">
+                    <div class="card-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <div class="summary-details">
+                        <span class="card-label">Current Balance</span>
+                        <span id="current-balance" class="card-value">&#8377; 0.00</span>
+                    </div>
+                </div>
+                <div class="summary-card income-card">
+                    <div class="card-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                    <div class="summary-details">
+                        <span class="card-label">Total Income</span>
+                        <span id="total-income" class="card-value text-success">&#8377; 0.00</span>
+                    </div>
+                </div>
+                <div class="summary-card expense-card">
+                    <div class="card-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                    <div class="summary-details">
+                        <span class="card-label">Total Expense</span>
+                        <span id="total-expense" class="card-value text-danger">&#8377; 0.00</span>
+                    </div>
+                </div>
+            </header>
 
-                <label for="transaction-type">Type</label>
-                <select id="transaction-type">
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                <small id = "type-error" class="error-text"></small>
-                </select>
+            <!-- Form Card Section -->
+            <section class="card form-card">
+                <div class="card-title">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <h2>Add / Edit Transaction</h2>
+                </div>
+                <form id="transaction-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="amount">Amount (&#8377;)</label>
+                            <input id="amount" type="number" inputmode="decimal" placeholder="Amount" min="0.1" step="0.01" required>
+                            <small id="amount-error" class="error-text"></small>
+                        </div>
 
-                <label for="category">Category</label>
-                <input id="category" type="text" placeholder="category" required>
-                <small id = "category-error" class="error-text"></small>
+                        <div class="form-group">
+                            <label for="transaction-type">Type</label>
+                            <select id="transaction-type">
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <small id="type-error" class="error-text"></small>
+                        </div>
 
-                <label for="date">Date</label>
-                <input id="date" type="date" required>
-                <small id = "date-error" class="error-text"></small>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <input id="category" type="text" placeholder="e.g. Groceries, Salary" required>
+                            <small id="category-error" class="error-text"></small>
+                        </div>
 
-                <label for="description">Description</label>
-                <textarea id="description" placeholder="Description"></textarea>
-                <button type="submit" id="submit-btn">Save</button>
-                <button type="button" id="cancel-btn">Clear</button>
-            </form>
-
-            <div id="filter-group">
-                <label for="type-filter">Filter by Type:</label>
-                <select id="type-filter" required>
-                    <option value="all">All Transaction</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
-            </div>
-                <label for="category-filter">Filter by Category:</label>
-                <select id="category-filter" required>
-                    <option value="all">All categories</option>
-                </select>
-            <ul id="transaction-list"></ul>
-
-            <div id="yearwise-summary">
-                <label for="summary-year">Select Year</label>
-                <select id="summary-year" required></select>
-            </div>
-            <div>
-                <table id="summary-table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Income</th>
-                            <th>Expense</th>
-                            <th>Net</th>
-                        </tr>
-                    </thead>
-                    <tbody id="summary-tbody"></tbody>
-                    <tfoot id="summary-tfoot"></tfoot>
-                </table>
-            </div>
-
-            <section class="chart-section card">
-                <div class="chart-header">
-                    <h3>Expense Breakdown</h3>
-                    <div class="chart-filter-group"></div>
-
-                    <div class="timeframe-group" id="timeframe-controls">
-                        <button type="button" class="btn-toggle active" data-timeframe="monthly">Monthly</button>
-                        <button type="button" class="btn-toggle" data-timeframe="yearly">Yearly</button>
-                        <button type="button" class="btn-toggle" data-timeframe="all">All Time</button>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input id="date" type="date" required>
+                            <small id="date-error" class="error-text"></small>
+                        </div>
                     </div>
 
-                    <div class="chart-filters">
-                        <select id="chart-month-select" class="select-input">
-                        </select>
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <textarea id="description" placeholder="Add notes or description..." rows="2"></textarea>
+                    </div>
 
-                        <select id="chart-year-select" class="select-input">
+                    <div class="form-actions">
+                        <button type="submit" id="submit-btn" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save</button>
+                        <button type="button" id="cancel-btn" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Clear</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Filter & Transactions List Card Section -->
+            <section class="card list-card">
+                <div class="card-title">
+                    <i class="fa-solid fa-list-check"></i>
+                    <h2>Transactions List</h2>
+                </div>
+                
+                <div class="filter-controls-bar">
+                    <div id="filter-group" class="filter-item">
+                        <label for="type-filter">Filter by Type:</label>
+                        <select id="type-filter" class="select-input" required>
+                            <option value="all">All Transactions</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
                         </select>
+                    </div>
+                    
+                    <div class="filter-item">
+                        <label for="category-filter">Filter by Category:</label>
+                        <select id="category-filter" class="select-input" required>
+                            <option value="all">All categories</option>
+                        </select>
+                    </div>
+                </div>
+
+                <ul id="transaction-list" class="styled-list"></ul>
+            </section>
+
+            <!-- Yearly Summary & Chart Grid -->
+            <div class="dashboard-analytics-grid">
+                <!-- Yearly Summary Table Card -->
+                <section class="card summary-table-card">
+                    <div class="card-title-flex">
+                        <div class="card-title">
+                            <i class="fa-solid fa-table-cells"></i>
+                            <h2>Yearly Summary</h2>
+                        </div>
+                        <div id="yearwise-summary" class="select-inline">
+                            <label for="summary-year">Select Year:</label>
+                            <select id="summary-year" class="select-input" required></select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table id="summary-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Income</th>
+                                    <th>Expense</th>
+                                    <th>Net</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-tbody"></tbody>
+                            <tfoot id="summary-tfoot"></tfoot>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Chart Card Section -->
+                <section class="card chart-section">
+                    <div class="chart-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <h2>Expense Breakdown</h2>
+                        </div>
+                    </div>
+
+                    <div class="chart-controls-bar">
+                        <div class="timeframe-group" id="timeframe-controls">
+                            <button type="button" class="btn-toggle active" data-timeframe="monthly">Monthly</button>
+                            <button type="button" class="btn-toggle" data-timeframe="yearly">Yearly</button>
+                            <button type="button" class="btn-toggle" data-timeframe="all">All Time</button>
+                        </div>
+
+                        <div class="chart-filters">
+                            <select id="chart-month-select" class="select-input"></select>
+                            <select id="chart-year-select" class="select-input"></select>
+                        </div>
                     </div>
 
                     <div class="chart-wrapper">
                         <canvas id="expense-chart"></canvas>
-
                         <div id="chart-empty-state" class="empty-state">
-                        <p>📊 No expenses found for this period.</p>
+                            <p>📊 No expenses found for this period.</p>
+                        </div>
                     </div>
-                </div>
-            </section>
-
+                </section>
+            </div>
+        </div>
     </body>
 </html>

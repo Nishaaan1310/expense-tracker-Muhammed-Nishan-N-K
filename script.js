@@ -4,6 +4,7 @@ let transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
 const transactionForm = document.getElementById("transaction-form");
 const saveBtn = document.getElementById('submit-btn');
 const cancelBtn = document.getElementById('cancel-btn');
+
 let editingId = null;
 
 const amountInput = document.getElementById("amount");
@@ -90,7 +91,6 @@ function validateForm() {
         description: descriptionValue
     };
 }
-
 
 function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
@@ -541,9 +541,8 @@ function populateChartDateDropdowns() {
 
     if (!yearSelect || !monthSelect) return;
 
-    const defaults = getCurrentDateDefaults(); // { year: "2026", month: "09" }
+    const defaults = getCurrentDateDefaults();
 
-    // 1. Populate Years (e.g. unique years from transactions + current year)
     const yearsFromData = transactions.map(t => t.date.slice(0, 4));
     const uniqueYears = [...new Set([...yearsFromData, defaults.year])].sort((a, b) => b - a);
 
@@ -556,7 +555,6 @@ function populateChartDateDropdowns() {
     });
     yearSelect.value = defaults.year;
 
-    // 2. Populate Months (01 through 12)
     const monthNames = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
