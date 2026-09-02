@@ -20,12 +20,24 @@ const currentBalance = document.getElementById("current-balance");
 const totalIncome = document.getElementById("total-income");
 const totalExpense = document.getElementById("total-expense")
 
+function updateAppUI() {
 
-renderTransactions(transactions);
-updateCategoryDropDown();
-populateYearDropDown();
-updateSummary();
-renderYearlySummaryTable();
+    renderTransactions(transactions);
+    updateCategoryDropDown();
+    populateYearDropDown();
+    updateSummary();
+    renderYearlySummaryTable();
+    populateChartDateDropdowns();
+    renderExpenseChart(); 
+
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupChartControls();          
+    setupChartDateSelectControls();
+    updateAppUI();         
+});
+
 
 function saveTransactions(){
     const parsedTransactions = JSON.stringify(transactions)
@@ -80,7 +92,7 @@ function validateForm() {
 }
 
 
-function showError(message) {
+function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
     errorElement.textContent = message;
 }
@@ -108,7 +120,7 @@ function addTransaction(event) {
     }
     else {
         const index = transactions.findIndex(function (transaction) {
-            return transaction.id = editingId;
+            return transaction.id === editingId;
         });
 
         if (index!== -1) {
@@ -118,22 +130,12 @@ function addTransaction(event) {
             };
         }
 
-        editingId === null;
+        editingId = null;
         saveBtn.textContent = 'Save';
     }
 
     saveTransactions();
-
-    console.log('Current Transaction Array:', transactions);
-    renderTransactions(transactions)
-    updateCategoryDropDown();
-    populateYearDropDown();
-    updateSummary();
-    renderYearlySummaryTable();
-    renderExpenseChart();
-    populateChartDateDropdowns();  
-
-
+    updateAppUI(); 
     transactionForm.reset();
 }
 
@@ -183,14 +185,7 @@ function deleteTransaction(id) {
     })
 
     saveTransactions();
-    renderTransactions(transactions);
-    updateCategoryDropDown();
-    populateYearDropDown();
-    updateSummary();
-    renderYearlySummaryTable();
-    renderExpenseChart();
-    populateChartDateDropdowns();  
-
+    updateAppUI();
 
 }
 
@@ -228,12 +223,14 @@ transactionList.addEventListener('click', function(e){
 
 
 function updateCategoryDropDown() {
+    const currentSelection = categoryFilter ? categoryFilter.value : 'all';
+
     const categories = transactions.map(function(transaction){
         return transaction.category;
     });
 
-    uniqueCategories = [...new Set(categories)];
-    categoryFilter.innerHTML = `<option value="all">All categories</option>` ;
+    const uniqueCategories = [...new Set(categories)];
+    categoryFilter.innerHTML = `<option value="all">All categories</option>`;
 
     uniqueCategories.forEach(function(category) {
         const option = document.createElement('option');
@@ -241,6 +238,12 @@ function updateCategoryDropDown() {
         option.textContent = category;
         categoryFilter.appendChild(option);
     });
+
+    if (categories.includes(currentSelection)) {
+        categoryFilter.value = currentSelection;
+    } else {
+        categoryFilter.value = 'all';
+    }
 }
 
 
@@ -248,8 +251,8 @@ typeFilter.addEventListener('change', filterTransactions);
 categoryFilter.addEventListener('change', filterTransactions);
 
 function filterTransactions(){
-    selectedType = typeFilter.value;
-    selectedCategory = categoryFilter.value;
+    const selectedType = typeFilter.value;
+    const selectedCategory = categoryFilter.value;
 
     const filtered = transactions.filter(function(transaction) {
         const matchesType = (selectedType === 'all') || (transaction.type === selectedType);
@@ -335,7 +338,8 @@ function createEmptyYearBucket() {
 
     const bucket ={};
     monthNames.forEach(function(name,index){
-        const monthKey = String(index+1).padStart(2, '0')
+        
+        const monthKey = 'm_' + String(index + 1).padStart(2, '0');
         bucket[monthKey] = {
             name:name,
             income:0,
@@ -352,13 +356,14 @@ function calculateYearlySummary(selectedYear){
 
     transactions.forEach(function(transaction){
         const [year , month] = transaction.date.split('-');
+        const monthKey = 'm_' + month;
 
-        if (year === selectedYear && monthlyData[month]) {
+        if (year === selectedYear && monthlyData[monthKey]) {
             if (transaction.type === 'income') {
-                monthlyData[month].income += transaction.amount;
+                monthlyData[monthKey].income += transaction.amount;
 
             } else if (transaction.type==='expense') {
-                monthlyData[month].expense += transaction.amount;
+                monthlyData[monthKey].expense += transaction.amount;
             }
         }
     });
@@ -511,6 +516,7 @@ function drawChartToCanvas(labels, amounts) {
     });
 }
 
+
 function setupChartControls() {
     const container = document.getElementById('timeframe-controls');
     if (!container) return;
@@ -527,7 +533,6 @@ function setupChartControls() {
          renderExpenseChart()
     });
 }
-
 
 
 function populateChartDateDropdowns() {
@@ -576,9 +581,3 @@ function setupChartDateSelectControls() {
     monthSelect?.addEventListener('change', renderExpenseChart);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    populateChartDateDropdowns();  
-    setupChartControls();          
-    setupChartDateSelectControls();
-    renderExpenseChart();          
-});
