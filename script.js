@@ -1,10 +1,30 @@
-let transactions =[];
+const storedTransactions = localStorage.getItem('transactions');
+let transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
+
 const transactionForm = document.getElementById("transaction-form");
 const amountInput = document.getElementById("amount");
 const typeInput = document.getElementById("transaction-type");
 const categoryInput = document.getElementById("category");
 const dateInput = document.getElementById("date");
 const descriptionInput = document.getElementById("description");
+
+const transactionList = document.getElementById("transaction-list");
+const categoryFilter = document.getElementById("category-filter")
+const typeFilter = document.getElementById("type-filter");
+
+const currentBalance = document.getElementById("current-balance");
+const totalIncome = document.getElementById("total-income");
+const totalExpense = document.getElementById("total-expense")
+
+renderTransactions(transactions);
+updateCategoryDropDown();
+updateSummary();
+
+function saveTransactions(){
+    const parsedTransactions = JSON.stringify(transactions)
+    localStorage.setItem('transactions', parsedTransactions);
+}
+
 
 transactionForm.addEventListener('submit', function(event){
     event.preventDefault();
@@ -19,14 +39,16 @@ transactionForm.addEventListener('submit', function(event){
     };
 
     transactions.push(newTransaction);
+    saveTransactions();
 
     console.log('Current Transaction Array:', transactions);
     renderTransactions(transactions)
     updateCategoryDropDown();
+    updateSummary()
+
     transactionForm.reset();
 });
 
-const transactionList = document.getElementById("transaction-list");
 
 function renderTransactions(listToRender) {
     transactionList.innerHTML = '';
@@ -49,7 +71,7 @@ function renderTransactions(listToRender) {
             deleteTransaction(transaction.id);
         })
 
-        amountSpan.textContent = `${sign}₹${Math.abs(transaction.amount).toFixed(3)}`;
+        amountSpan.textContent = `${sign}₹${Math.abs(transaction.amount).toFixed(2)}`;
         typeSpan.textContent = `${transaction.type}`;
         descSpan.textContent = `${transaction.description} (${transaction.category})`;
 
@@ -67,12 +89,13 @@ function deleteTransaction(id) {
         return transaction.id != id
     })
 
-    updateCategoryDropDown();
+    saveTransactions();
     renderTransactions(transactions);
+    updateCategoryDropDown();
+    updateSummary();
+
 }
 
-
-const categoryFilter = document.getElementById("category-filter")
 
 function updateCategoryDropDown() {
     const categories = transactions.map(function(transaction){
@@ -90,19 +113,41 @@ function updateCategoryDropDown() {
     });
 }
 
-const typeFilter = document.getElementById("type-filter");
 
 typeFilter.addEventListener('change', filterTransactions);
 categoryFilter.addEventListener('change', filterTransactions);
 
 function filterTransactions(){
-    
     selectedType = typeFilter.value;
     selectedCategory = categoryFilter.value;
+
     const filtered = transactions.filter(function(transaction) {
         const matchesType = (selectedType === 'all') || (transaction.type === selectedType);
         const matchesCategory = (selectedCategory === 'all') || (transaction.category === selectedCategory);
          return matchesType && matchesCategory
     })
     renderTransactions(filtered)
+}
+
+function updateSummary(){
+    const incomeSum = transactions.reduce(function(accumulator, transaction){
+        if (transaction.type === 'income'){
+            return accumulator + transaction.amount;
+        }
+        return accumulator;
+    }, 0);
+
+    const expenseSum = transactions.reduce(function(accumulator, transaction){
+            if (transaction.type === 'expense'){
+                return accumulator + transaction.amount;
+            }
+            return accumulator;
+        }, 0);
+
+    const balanceTotal = incomeSum - expenseSum;
+
+    totalIncome.textContent = `₹${incomeSum.toFixed(2)}`;
+    totalExpense.textContent = `₹${expenseSum.toFixed(2)}`;
+    currentBalance.textContent = `₹${balanceTotal.toFixed(2)}`;
+    
 }
