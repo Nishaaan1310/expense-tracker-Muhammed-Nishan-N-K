@@ -22,24 +22,41 @@
         </header>
         </div>
             <form id="transaction-form">
-                <input id="amount" type="number" placeholder="Amount" min="0" required>
+
+                <label for="amount">Amount</label>
+                <input id="amount" type="number" placeholder="Amount" min="0.1" step="0.01" required>
+                <small id = "amount-error" class="error-text"></small>
+
+                <label for="transaction-type">Type</label>
                 <select id="transaction-type">
                     <option value="income">Income</option>
                     <option value="expense">Expense</option>
+                <small id = "type-error" class="error-text"></small>
                 </select>
-                <input id="category" type="text" placeholder="category">
-                <input id="date" type="date">
+
+                <label for="category">Category</label>
+                <input id="category" type="text" placeholder="category" required>
+                <small id = "category-error" class="error-text"></small>
+
+                <label for="date">Date</label>
+                <input id="date" type="date" required>
+                <small id = "date-error" class="error-text"></small>
+
+                <label for="description">Description</label>
                 <textarea id="description" placeholder="Description"></textarea>
                 <button type="submit">Add</button>
             </form>
 
-            <section id="list-filter"></section>
-                <select id="type-filter">
-                    <option value="all">All</option>
+            <div id="filter-group"></div>
+                <label for="type-filter">Filter by Type:</label>
+                <select id="type-filter" required>
+                    <option value="all">All Transaction</option>
                     <option value="income">Income</option>
                     <option value="expense">Expense</option>
                 </select>
-                <select id="category-filter">
+
+                <label for="category-filter">Filter by Category:</label>
+                <select id="category-filter" required>
                     <option value="all">All categories</option>
                 </select>
             <ul id="transaction-list"></ul>

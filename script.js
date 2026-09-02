@@ -26,16 +26,51 @@ function saveTransactions(){
 }
 
 
-transactionForm.addEventListener('submit', function(event){
+transactionForm.addEventListener('submit', addTransaction);
+
+function addTransaction(event) {
     event.preventDefault();
+
+    clearErrors();
+
+    const amountValue = Number(amountInput.value);
+    const categoryValue = categoryInput.value.trim();
+    const dateValue = dateInput.value;
+    const typeValue = typeInput.value;
+    const descriptionValue = descriptionInput.value.trim();
+
+    let hasError = false
+
+    if (isNaN(amountValue) || amountValue <=0) {
+        showError('amount-error', 'Please enter a valid amount greater than 0.');
+        hasError = true;
+    }
+
+    const allowedTypes = ['income', 'expense'];
+    if (!allowedTypes.includes(typeValue)) {
+        showError('type-error', 'Please select a valid type (Income or Expense).');
+        hasError = true;
+    }
+
+    if (categoryValue === '') {
+        showError('category-error', 'Please enter or select a category.');
+        hasError = true
+    }
+
+    if (dateValue === '' || isNaN(Date.parse(dateValue))) {
+        showError('date-error', 'Please select a valid date.');
+        hasError = true;
+    }
+
+    if (hasError) return ;
 
     const newTransaction = {
         id: Date.now(),
-        amount: parseFloat(amountInput.value),
+        amount: amountValue,
         type: typeInput.value,
-        category: categoryInput.value,
-        date: dateInput.value,
-        description: descriptionInput.value
+        category: categoryValue,
+        date: dateValue,
+        description: descriptionValue
     };
 
     transactions.push(newTransaction);
@@ -47,7 +82,19 @@ transactionForm.addEventListener('submit', function(event){
     updateSummary()
 
     transactionForm.reset();
-});
+}
+
+function showError(message) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = message;
+}
+
+function clearErrors() {
+    const errorElements = document.querySelectorAll('.error-text');
+    errorElements.forEach(function(el){
+        el.textContent ='';
+    })
+}
 
 
 function renderTransactions(listToRender) {
