@@ -3,6 +3,7 @@
     <head>
         <link rel="stylesheet" href="style.css">
         <script src="script.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <title> Expense Tracker </title>
     </head>
     <body>
@@ -80,6 +81,34 @@
                     <tfoot id="summary-tfoot"></tfoot>
                 </table>
             </div>
+
+            <section class="chart-section card">
+                <div class="chart-header">
+                    <h3>Expense Breakdown</h3>
+                    <div class="chart-filter-group"></div>
+
+                    <div class="timeframe-group" id="timeframe-controls">
+                        <button type="button" class="btn-toggle active" data-timeframe="monthly">Monthly</button>
+                        <button type="button" class="btn-toggle" data-timeframe="yearly">Yearly</button>
+                        <button type="button" class="btn-toggle" data-timeframe="all">All Time</button>
+                    </div>
+
+                    <div class="chart-filters">
+                        <select id="chart-month-select" class="select-input">
+                        </select>
+
+                        <select id="chart-year-select" class="select-input">
+                        </select>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <canvas id="expense-chart"></canvas>
+
+                        <div id="chart-empty-state" class="empty-state">
+                        <p>📊 No expenses found for this period.</p>
+                    </div>
+                </div>
+            </section>
 
     </body>
 </html>

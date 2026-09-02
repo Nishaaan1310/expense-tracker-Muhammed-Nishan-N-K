@@ -130,6 +130,9 @@ function addTransaction(event) {
     populateYearDropDown();
     updateSummary();
     renderYearlySummaryTable();
+    renderExpenseChart();
+    populateChartDateDropdowns();  
+
 
     transactionForm.reset();
 }
@@ -185,6 +188,8 @@ function deleteTransaction(id) {
     populateYearDropDown();
     updateSummary();
     renderYearlySummaryTable();
+    renderExpenseChart();
+    populateChartDateDropdowns();  
 
 
 }
@@ -330,7 +335,7 @@ function createEmptyYearBucket() {
 
     const bucket ={};
     monthNames.forEach(function(name,index){
-        const monthKey = String(index+1)
+        const monthKey = String(index+1).padStart(2, '0')
         bucket[monthKey] = {
             name:name,
             income:0,
@@ -352,7 +357,7 @@ function calculateYearlySummary(selectedYear){
             if (transaction.type === 'income') {
                 monthlyData[month].income += transaction.amount;
 
-            } else if (transaction.type===expense) {
+            } else if (transaction.type==='expense') {
                 monthlyData[month].expense += transaction.amount;
             }
         }
@@ -402,7 +407,178 @@ function renderYearlySummaryTable() {
 
 document.getElementById('summary-year').addEventListener('change', renderYearlySummaryTable);
 
+function getCategoriesTotals(mode, selectedYear, selectedMonth) {
+    const totals = {};
+
+    for (const transaction of transactions) {
+        
+        if(transaction.type != 'expense') continue;
+        
+        const [year,month] = transaction.date.split('-');
+
+        if (mode ==='monthly') {
+            if (year!= selectedYear || month !== selectedMonth) continue;
+        }
+        else if (mode === 'yearly') {
+            if (year !== selectedYear) continue;
+        }
+
+        if (!totals[transaction.category]) {
+            totals[transaction.category] =0;
+        }
+        totals[transaction.category] += transaction.amount;
+    }
+    return {
+        labels: Object.keys(totals),
+        amounts: Object.values(totals)
+    }
+}
+
+let activeTimeframe = 'monthly';
+
+function getCurrentDateDefaults() {
+    const now = new Date();
+    const year = String(now.getFullYear());
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return { year, month };
+}
+
+function renderExpenseChart() {
+
+    const defaults = getCurrentDateDefaults();
+
+    const yearSelect = document.getElementById('chart-year-select');
+    const monthSelect = document.getElementById('chart-month-select');
+
+    const selectedYear = yearSelect?.value || defaults.year;
+    const selectedMonth = monthSelect?.value || defaults.month;
+
+    const mode = activeTimeframe || 'monthly';
+
+    const {labels, amounts} = getCategoriesTotals(mode, selectedYear, selectedMonth);
+    const hasExpenseData = amounts.length> 0 && amounts.some(val => val > 0);
+
+    const canvas = document.getElementById('expense-chart');
+    const emptyState = document.getElementById('chart-empty-state');
+
+    if (!canvas || !emptyState) return;
+
+    if(!hasExpenseData) {
+        canvas.style.display = 'none';
+        emptyState.style.display = 'block';
+
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;  
+        }
+        return;
+    }
+    canvas.style.display = 'block';
+    emptyState.style.display = 'none';
+
+    drawChartToCanvas(labels, amounts);
+}
+
+let chartInstance = null;
+
+function drawChartToCanvas(labels, amounts) {
+    const canvas = document.getElementById('expense-chart');
+    const ctx = canvas.getContext('2d');
+
+    if (chartInstance) {
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = amounts;
+        chartInstance.update();
+        return;
+    }
+
+    chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: amounts,
+                backgroundColor: [
+                    '#3b82f6', '#ef4444', '#10b981', '#f59e0b',
+                    '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function setupChartControls() {
+    const container = document.getElementById('timeframe-controls');
+    if (!container) return;
+
+    container.addEventListener('click', function(event) {
+        const clickedBtn = event.target.closest('.btn-toggle');
+         if (!clickedBtn || clickedBtn.classList.contains('active')) return;
+
+         container.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('active'));
+         clickedBtn.classList.add('active');
+
+         activeTimeframe = clickedBtn.dataset.timeframe;
+
+         renderExpenseChart()
+    });
+}
 
 
 
+function populateChartDateDropdowns() {
+    const yearSelect = document.getElementById('chart-year-select');
+    const monthSelect = document.getElementById('chart-month-select');
 
+    if (!yearSelect || !monthSelect) return;
+
+    const defaults = getCurrentDateDefaults(); // { year: "2026", month: "09" }
+
+    // 1. Populate Years (e.g. unique years from transactions + current year)
+    const yearsFromData = transactions.map(t => t.date.slice(0, 4));
+    const uniqueYears = [...new Set([...yearsFromData, defaults.year])].sort((a, b) => b - a);
+
+    yearSelect.innerHTML = '';
+    uniqueYears.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
+    });
+    yearSelect.value = defaults.year;
+
+    // 2. Populate Months (01 through 12)
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    monthSelect.innerHTML = '';
+    monthNames.forEach((name, index) => {
+        const option = document.createElement('option');
+        const monthValue = String(index + 1).padStart(2, '0');
+        option.value = monthValue;
+        option.textContent = name;
+        monthSelect.appendChild(option);
+    });
+    monthSelect.value = defaults.month;
+}
+
+function setupChartDateSelectControls() {
+    const yearSelect = document.getElementById('chart-year-select');
+    const monthSelect = document.getElementById('chart-month-select');
+
+    yearSelect?.addEventListener('change', renderExpenseChart);
+    monthSelect?.addEventListener('change', renderExpenseChart);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    populateChartDateDropdowns();  
+    setupChartControls();          
+    setupChartDateSelectControls();
+    renderExpenseChart();          
+});

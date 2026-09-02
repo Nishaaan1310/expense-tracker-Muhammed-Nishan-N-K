@@ -1,0 +1,105 @@
+.summary {
+    display:flex;
+    flex-wrap: wrap;
+    padding:5px;
+}
+
+/* Card Container */
+.chart-section {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chart-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+/* Timeframe Toggle Buttons */
+.timeframe-group {
+  display: inline-flex;
+  background-color: #f3f4f6;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.btn-toggle {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle:hover {
+  color: #111827;
+}
+
+/* Selected Active Button */
+.btn-toggle.active {
+  background-color: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdowns */
+.chart-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.select-input {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.select-input:focus {
+  border-color: #2563eb;
+}
+
+/* CRITICAL: Canvas Wrapper (Chart.js needs fixed height container) */
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 300px; /* Prevents canvas from collapsing to 0px */
+}
+
+#expense-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Empty State Container */
+.empty-state {
+  display: none; /* Controlled by JS display property */
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+}
