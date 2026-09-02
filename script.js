@@ -133,6 +133,8 @@ function addTransaction(event) {
         editingId = null;
         saveBtn.textContent = 'Save';
     }
+    
+    setFormMode(false);
 
     saveTransactions();
     updateAppUI(); 
@@ -142,6 +144,17 @@ function addTransaction(event) {
 
 function renderTransactions(listToRender) {
     transactionList.innerHTML = '';
+
+    const noTransactionsMsg = document.getElementById('no-transactions-msg');
+    if (!listToRender || listToRender.length === 0) {
+        if (noTransactionsMsg) {
+            noTransactionsMsg.style.display = 'flex'; // Show message
+        }
+        return;
+    }
+    if (noTransactionsMsg) {
+        noTransactionsMsg.style.display = 'none';
+    }   
 
     listToRender.forEach(function(transaction) {
         const li = document.createElement('li');
@@ -153,7 +166,8 @@ function renderTransactions(listToRender) {
 
         const descSpan = document.createElement('span');
         const amountSpan = document.createElement('span');
-        const typeSpan = document.createElement('span')
+        const typeSpan = document.createElement('span');
+        const categorySpan = document.createElement('span')
         const deleteBtn = document.createElement('button');
         const editBtn = document.createElement('button');
 
@@ -167,10 +181,12 @@ function renderTransactions(listToRender) {
 
         amountSpan.textContent = `${sign}₹${Math.abs(transaction.amount).toFixed(2)}`;
         typeSpan.textContent = `${transaction.type}`;
-        descSpan.textContent = `${transaction.description} (${transaction.category})`;
+        categorySpan.textContent = `${transaction.category}`;
+        descSpan.textContent = `${transaction.description}`;
 
         li.appendChild(amountSpan);
-        li.appendChild(typeSpan)
+        li.appendChild(typeSpan);
+        li.appendChild(categorySpan);
         li.appendChild(descSpan);        
         li.appendChild(deleteBtn);
         li.appendChild(editBtn);
@@ -204,6 +220,10 @@ function startEdit(id) {
 
     editingId = id;
     setFormMode(true);
+    transactionForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function() {
+        amountInput.focus();
+    }, 400);
 }
 
 // Event listner for edit and delete button, delegation to parent container
@@ -305,6 +325,9 @@ cancelBtn.addEventListener('click', resetForm);
 
 function populateYearDropDown() {
     const selectedYear = document.getElementById('summary-year');
+    if (!selectedYear) return;
+
+    const previousSelection = selectedYear.value;
     const currentYear = new Date().getFullYear().toString();
 
     const years = transactions.map(function(transaction){
@@ -326,7 +349,12 @@ function populateYearDropDown() {
         option.textContent = year;
         selectedYear.appendChild(option);
     });
-    selectedYear.value = currentYear;
+
+    if (uniqueYears.includes(previousSelection)) {
+        selectedYear.value = previousSelection;
+    } else {
+        selectedYear.value = currentYear;
+    }
 
 }
 

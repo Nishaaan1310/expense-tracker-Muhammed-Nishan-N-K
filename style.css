@@ -385,10 +385,28 @@ body {
 }
 
 .styled-list li span:nth-child(3) {
-  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--border-light);
   color: var(--text-main);
-  font-weight: 500;
+  white-space: nowrap; 
 }
+
+.styled-list li span:nth-child(4) {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  min-width: 120px;
+  word-break: break-word;
+}
+
 
 .edit-btn, .delete-btn {
   padding: 6px 12px;
