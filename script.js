@@ -23,7 +23,9 @@ const totalExpense = document.getElementById("total-expense")
 
 renderTransactions(transactions);
 updateCategoryDropDown();
+populateYearDropDown();
 updateSummary();
+renderYearlySummaryTable();
 
 function saveTransactions(){
     const parsedTransactions = JSON.stringify(transactions)
@@ -125,7 +127,9 @@ function addTransaction(event) {
     console.log('Current Transaction Array:', transactions);
     renderTransactions(transactions)
     updateCategoryDropDown();
-    updateSummary()
+    populateYearDropDown();
+    updateSummary();
+    renderYearlySummaryTable();
 
     transactionForm.reset();
 }
@@ -178,7 +182,10 @@ function deleteTransaction(id) {
     saveTransactions();
     renderTransactions(transactions);
     updateCategoryDropDown();
+    populateYearDropDown();
     updateSummary();
+    renderYearlySummaryTable();
+
 
 }
 
@@ -287,3 +294,115 @@ function resetForm(){
 }
 
 cancelBtn.addEventListener('click', resetForm);
+
+function populateYearDropDown() {
+    const selectedYear = document.getElementById('summary-year');
+    const currentYear = new Date().getFullYear().toString();
+
+    const years = transactions.map(function(transaction){
+        return transaction.date.slice(0,4);
+    });
+    const uniqueYears = [...new Set(years)];
+
+    if (!years.includes(currentYear)) {
+        uniqueYears.push(currentYear);
+    }
+    uniqueYears.sort(function(a,b){
+        return b-a
+    });
+
+    selectedYear.replaceChildren();
+    uniqueYears.forEach(function(year) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        selectedYear.appendChild(option);
+    });
+    selectedYear.value = currentYear;
+
+}
+
+function createEmptyYearBucket() {
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const bucket ={};
+    monthNames.forEach(function(name,index){
+        const monthKey = String(index+1)
+        bucket[monthKey] = {
+            name:name,
+            income:0,
+            expense:0,
+            net:0
+        };
+    });
+
+    return bucket;
+}
+
+function calculateYearlySummary(selectedYear){
+    const monthlyData = createEmptyYearBucket();
+
+    transactions.forEach(function(transaction){
+        const [year , month] = transaction.date.split('-');
+
+        if (year === selectedYear && monthlyData[month]) {
+            if (transaction.type === 'income') {
+                monthlyData[month].income += transaction.amount;
+
+            } else if (transaction.type===expense) {
+                monthlyData[month].expense += transaction.amount;
+            }
+        }
+    });
+
+    Object.values(monthlyData).forEach(function(month){
+        month.net = month.income - month.expense;
+    });
+    
+    return monthlyData
+}
+
+function renderYearlySummaryTable() {
+    const selectedYear = document.getElementById('summary-year').value
+    const summaryData = calculateYearlySummary(selectedYear);
+    const tbody = document.getElementById('summary-tbody');
+    const tfoot = document.getElementById('summary-tfoot');
+
+    let yearlyIncome = 0;
+    let yearlyExpense = 0;
+
+    const rowHtml = Object.values(summaryData).map(function(month){
+        yearlyIncome += month.income
+        yearlyExpense += month.expense
+
+        return `
+            <tr>
+                <td>${month.name}</td>
+                <td>${month.income.toFixed(2)}</td>
+                <td>${month.expense.toFixed(2)}</td>
+                <td>${month.net.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    tbody.innerHTML = rowHtml;
+
+    const yearlyNet = yearlyIncome - yearlyExpense;
+    tfoot.innerHTML = `
+    <tr>
+        <th>Total (${selectedYear})</th>
+        <th>₹${yearlyIncome.toFixed(2)}</th>
+        <th>₹${yearlyExpense.toFixed(2)}</th>
+        <th>₹${yearlyNet.toFixed(2)}</th>
+    `;
+}
+
+document.getElementById('summary-year').addEventListener('change', renderYearlySummaryTable);
+
+
+
+
+

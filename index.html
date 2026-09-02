@@ -48,19 +48,38 @@
                 <button type="button" id="cancel-btn">Clear</button>
             </form>
 
-            <div id="filter-group"></div>
+            <div id="filter-group">
                 <label for="type-filter">Filter by Type:</label>
                 <select id="type-filter" required>
                     <option value="all">All Transaction</option>
                     <option value="income">Income</option>
                     <option value="expense">Expense</option>
                 </select>
-
+            </div>
                 <label for="category-filter">Filter by Category:</label>
                 <select id="category-filter" required>
                     <option value="all">All categories</option>
                 </select>
             <ul id="transaction-list"></ul>
-            
+
+            <div id="yearwise-summary">
+                <label for="summary-year">Select Year</label>
+                <select id="summary-year" required></select>
+            </div>
+            <div>
+                <table id="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Income</th>
+                            <th>Expense</th>
+                            <th>Net</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-tbody"></tbody>
+                    <tfoot id="summary-tfoot"></tfoot>
+                </table>
+            </div>
+
     </body>
 </html>
