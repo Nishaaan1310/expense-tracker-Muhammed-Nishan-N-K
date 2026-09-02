@@ -3,6 +3,7 @@ let transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
 
 const transactionForm = document.getElementById("transaction-form");
 const saveBtn = document.getElementById('submit-btn');
+const cancelBtn = document.getElementById('cancel-btn');
 let editingId = null;
 
 const amountInput = document.getElementById("amount");
@@ -195,7 +196,7 @@ function startEdit(id) {
     descriptionInput.value = transactionToEdit.description
 
     editingId = id;
-    saveBtn.textContent = 'Update';
+    setFormMode(true);
 }
 
 // Event listner for edit and delete button, delegation to parent container
@@ -268,3 +269,21 @@ function updateSummary(){
     currentBalance.textContent = `₹${balanceTotal.toFixed(2)}`;
     
 }
+
+function setFormMode(isEditing) {
+    if (isEditing) {
+        saveBtn.textContent = 'Update'
+        cancelBtn.textContent = 'Cancel edit'
+    }else{
+        saveBtn.textContent = 'Save'
+        cancelBtn.textContent = 'clear'
+        editingId=null;
+    }
+}
+function resetForm(){
+    transactionForm.reset();
+    clearErrors();
+    setFormMode(false);
+}
+
+cancelBtn.addEventListener('click', resetForm);
