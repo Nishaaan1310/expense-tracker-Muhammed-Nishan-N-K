@@ -53,7 +53,8 @@ function validateForm() {
     clearErrors();
 
     const amountValue = Number(amountInput.value);
-    const categoryValue = categoryInput.value.trim();
+    const rawCategory = categoryInput.value.trim();
+    const categoryValue = rawCategory? rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1).toLowerCase() : '';
     const dateValue = dateInput.value;
     const typeValue = typeInput.value;
     const descriptionValue = descriptionInput.value.trim();
@@ -71,7 +72,7 @@ function validateForm() {
         isValid = false;
     }
 
-    if (categoryValue === '') {
+    if (rawCategory === '') {
         showError('category-error', 'Please enter or select a category.');
         isValid = false
     }
@@ -148,7 +149,7 @@ function renderTransactions(listToRender) {
     const noTransactionsMsg = document.getElementById('no-transactions-msg');
     if (!listToRender || listToRender.length === 0) {
         if (noTransactionsMsg) {
-            noTransactionsMsg.style.display = 'flex'; // Show message
+            noTransactionsMsg.style.display = 'flex';
         }
         return;
     }
@@ -220,10 +221,17 @@ function startEdit(id) {
 
     editingId = id;
     setFormMode(true);
+
     transactionForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(function() {
-        amountInput.focus();
-    }, 400);
+
+    // Only focus input automatically on Desktop / Larger Screens
+    const isMobile = window.innerWidth <= 600 || 'ontouchstart' in window;
+
+    if (!isMobile) {
+        setTimeout(function() {
+            amountInput.focus();
+        }, 400);
+    }
 }
 
 // Event listner for edit and delete button, delegation to parent container
